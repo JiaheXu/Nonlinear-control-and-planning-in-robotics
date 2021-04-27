@@ -49,7 +49,7 @@ map.blocks = blocks;
 
 % construct voxel grid
 % width depth height 
-wdh =  floor((map.boundary(4:6)-boundary(1:3))/map.res_xyz(1))
+wdh =  floor((boundary(4:6)-boundary(1:3))./map.res_xyz)
 width = wdh(1);
 depth= wdh(2);
 height = 1;

@@ -68,7 +68,6 @@ dist
     length = 0;
     if ( dist(goal_idx(1), goal_idx(2), goal_idx(3) ) ) ~= inf
         % start from goal
-        disp('orz');
         cur_p = goal_idx;
         while(1)
             cur_p =  reshape( cur_p , [1,3]);

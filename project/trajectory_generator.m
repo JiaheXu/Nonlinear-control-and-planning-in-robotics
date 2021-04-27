@@ -49,11 +49,9 @@ for i = 1:n-2
     
     b(6*i-2, :) = path(i, :);
     b(6*i-1, :) = path(i, :);
-    
-    solution = A\b;
-    
+
 end
-    
+solution = A\b;
    
 if t >= total_time   % if there is only on point in the path 
     pos = path(end,:);
