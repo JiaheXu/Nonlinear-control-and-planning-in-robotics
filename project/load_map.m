@@ -64,9 +64,10 @@ map.height = height;
 map.occgrid = reshape( zeros(wdh),[width, depth, height]);
 
 [m , n] = size(blocks);
+%valid = 1;
 for i = 1:m
   ijk_min = pos2idx(map, blocks(i,1:3));
-  ijk_max = pos2idx(map, blocks(i,4:6) - res_xyz );
+  ijk_max = pos2idx(map, blocks(i,4:6) - res_xyz) ;
   map.occgrid(ijk_min(1):ijk_max(1), ijk_min(2):ijk_max(2),ijk_min(3):ijk_max(3)) = 1;
 end
 

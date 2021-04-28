@@ -1,13 +1,15 @@
-function path = dijkstra(   start , goal , map)
-
+function path = dijkstra(map, start , goal)
+    %valid = 1;
     start_idx = pos2idx(map , start);
-    goal_idx  = pos2idx(map , goal);
+    goal_idx  = pos2idx(map , goal );
+    
     start_idx =  reshape( start_idx, [1,3]);
     goal_idx  =  reshape( goal_idx , [1,3]);
-    wdh = pos2idx(map , map.boundary(4:6))
-    width = wdh(1);
-    depth = wdh(2);
-    height = wdh(3);
+    
+
+    width = map.width;
+    depth = map.depth;
+    height = map.height;
     pre = zeros(width, depth , height , 3 );
     dist = ones(width, depth , height) * inf;
     
