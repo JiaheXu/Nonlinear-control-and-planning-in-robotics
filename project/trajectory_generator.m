@@ -30,7 +30,7 @@ b = zeros(6 * (n - 1), 3);
 A(1:3, 1:6) =  [0, 0, 0, 0, 0, 1;
                 0, 0, 0, 0, 1, 0;
                 0, 0, 0, 2, 0, 0];
-b(1,:) = path(1, :)
+b(1,:) = path(1, :);
 % end boundary
 dt = timedtVec(end);
 A(end-2:end, end-5:end) = [dt^5,    dt^4,   dt^3,   dt^2,  dt, 1;
@@ -49,9 +49,9 @@ for i = 1:n-2
     
     b(6*i-2, :) = path(i, :);
     b(6*i-1, :) = path(i, :);
-
+    
 end
-solution = A\b;
+solution = A\b;    
    
 if t >= total_time   % if there is only on point in the path 
     pos = path(end,:);
@@ -76,8 +76,6 @@ end
 
 yaw = 0;
 yawdot = 0;
-
-% =================== Your code ends here ===================
 
 desired_state.pos = pos(:);
 desired_state.vel = vel(:);
