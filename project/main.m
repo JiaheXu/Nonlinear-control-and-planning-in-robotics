@@ -6,60 +6,66 @@ addpath(genpath('./'));
 % test for load_map
 disp('loading map');
 % voxel's width depth and height better to be the same value
-v = 0.1;
-v2 = 0.1;
+v = 0.3;
+v2 = 0.5;
 voxel = [v,v,v2];
-map = load_map('C:\Users\Administrator\Desktop\project\maps\map0.txt', voxel );
+map = load_map('C:\Users\Administrator\Desktop\project\maps\map1.txt', voxel );
 map.occgrid;
-start = [0,0,0];
-goal = [7,6,1];
+plotcube(map)
 
-%path = dijkstra( map , start, goal);
+start = map.boundary(1:3);
+goal = map.boundary(4:6);
+
+collision_check( map , start);
+collision_check( map , goal);
+
+path = dijkstra( map , start, goal);
+collision_check( map , path);
+
+plot3(path(:,1), path(:,2), path(:,3), '-b');
+path = find_corner(path);
+path = CEM( map , path , start, goal);
+plot3(path(:,1), path(:,2), path(:,3), '-g');
+plotcube(map)
+
 %path = CEM( map , start, goal)
 
-path =[ 0         0         0
-    0.0508    0.0588    0.0316
-    0.1016    0.1176    0.0632
-    0.1525    0.1764    0.0947
-    0.2033    0.2352    0.1263
-    0.2541    0.2940    0.1579
-    0.3049    0.3528    0.1895
-    0.4416    0.5684    0.2438
-    0.5783    0.7840    0.2982
-    0.7150    0.9996    0.3525
-    0.8517    1.2152    0.4068
-    0.9883    1.4308    0.4612
-    1.1250    1.6464    0.5155
-    1.4813    1.8834    0.4605
-    1.8376    2.1204    0.4055
-    2.1939    2.3574    0.3504
-    2.5501    2.5944    0.2954
-    2.9064    2.8314    0.2403
-    3.2627    3.0685    0.1853
-    3.3747    3.1536    0.2217
-    3.4866    3.2387    0.2582
-    3.5986    3.3238    0.2946
-    3.7106    3.4090    0.3311
-    3.8226    3.4941    0.3675
-    3.9345    3.5792    0.4040
-    4.2199    3.7901    0.4600
-    4.5053    4.0010    0.5160
-    4.7907    4.2118    0.5720
-    5.0760    4.4227    0.6280
-    5.3614    4.6335    0.6840
-    5.6468    4.8444    0.7400
-    5.7584    4.9159    0.7526
-    5.8700    4.9874    0.7652
-    5.9816    5.0589    0.7778
-    6.0933    5.1304    0.7904
-    6.2049    5.2019    0.8029
-    6.3165    5.2733    0.8155
-    6.4304    5.3945    0.8463
-    6.5443    5.5156    0.8770
-    6.6583    5.6367    0.9078
-    6.7722    5.7578    0.9385
-    6.8861    5.8789    0.9693
-    7.0000    6.0000    1.0000];
+%path3 = CEM( map , start, goal);
+%collision_check( map , path3)
+
+%plot3(path3(:,1), path3(:,2), path3(:,3), '-b');
+% todo 
+% combine the result of dijkstra and CEM
+% more robust collision checking constant step or algebric methods
+idxpath = [1     1     1
+     2     1     1
+     2     2     1
+     2     3     1
+     2     4     1
+     2     5     1
+     3     5     1
+     4     5     1
+     5     5     1
+     6     5     1
+     7     5     1
+     8     5     1
+     8     6     1
+     8     7     1
+     9     7     1
+    10     7     1
+    11     7     1
+    12     7     1
+    13     7     1
+    14     7     1
+    14     8     1
+    14     9     1
+    14    10     1
+    14    11     1
+    14    12     1
+    14    12     2];
+idx2pos(map , idxpath);
+
+% valid path1
 path1 = [
     0         0         0
     0.0833    0.0833    0.0833
@@ -104,10 +110,14 @@ path1 = [
     6.8333    5.8333    0.8333
     6.9167    5.9167    0.9167
     7.0000    6.0000    1.0000];
-path3 = CEM( map , start, goal);
-collision_check( map , path3)
-plot(path3(:,1), path3(:,2), '-r');
-% todo 
-% combine the result of dijkstra and CEM
-% more robust collision checking constant step or algebric methods
+% valid path2
+path2 = [ 0 0 0;
+       0.5 0.5 0.5;
+       0.5 2.5 0.5;
+       3.5 2.5 0.5;
+       3.5 3.5 0.5;
+       6.5 3.5 0.5;
+       6.5 5.5 0.5;
+       7 6 1;
+    ];
 

@@ -1,34 +1,54 @@
-function path = CEM( map , start, goal)
-%function  luck()
-% v = 0.1;
-% voxel = [v,v,0.1];
+function path = CEM( map ,path, start, goal)
+% function  luck()
+% clear;
+% clc;
+% v = 1;
+% v2 = 1;
+% voxel = [v,v,v2];
 % map = load_map('C:\Users\Administrator\Desktop\project\maps\map0.txt', voxel );
 % map.occgrid;
 % start = [0,0,0];
 % goal = [7,6,1];
-
-sn = 6;  % total intermediate knots
+% path =[
+% 0         0         0
+%     0.5000    0.5000    0.5000
+%     0.5000    2.5000    0.5000
+%     3.5000    2.5000    0.5000
+%     3.5000    3.5000    0.5000
+%     6.5000    3.5000    0.5000
+%     6.5000    5.5000    0.5000
+%     7.0000    6.0000    1.0000];
+sn = size(path,1) - 2  % total intermediate knots
 ng = 1;  % number of Gaussian mixture models
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 iter = 10; % total iterations
-S = si_init(map , start , goal , sn ,  ng);
+
+S = si_init(map , start , goal , sn ,  ng , path);
 N = 50;  % total samples
 % take top 10%
 p =.1;    % rho-quantile
 nf = round(p*N);
 S.ss = [];
 s = feval(S.f_sinit, S);
-crs = inf*ones(1,iter);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%crs = inf*ones(1,iter);
+crs = inf*ones(1,10000);
+last_cost = 0.0;
 uf = 0;   % set to 1 to generate and save separate plots for each iteration
 S.uf = uf;
 pss = zeros(N, S.n*S.sn);
-for k=1:iter
-  S.k = k;  
-  tic
-  j0 = 2;
-  if k==1
-    j0=1;
-  end
-  for j=j0:N
+%for k=1:iter
+k = 1;
+while( 1 )
+    S.k = k;  
+    tic
+    j0 = 2;
+    if k==1
+        j0=1;
+    end
+    
+    for j=j0:N
         % pss :第j轮生成的sn 个随机点
         pss(j,:) = feval(S.f_sample, s, 1, S);
         % xs应该是右边示意图的点 是真正路径？
@@ -41,14 +61,15 @@ for k=1:iter
         %cost 各点之间直线距离之和
         S.ss(j).c = feval(S.f_cost, pss(j,:), S);
         S.ss(j).c;
-  end
+    end
   toc
   
-  disp('fitting');
+  fprintf('finished round %d',k);
   tic
   %把N轮 由Sn个随机点的组成的随机路径排序
   [pss, cs] = ce_sort(pss, S);
-  a = .9;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  a = 0.9;
   %只按前nf好的sample更新
   sn = ce_fit(pss(1:nf,:), s, S);
   
@@ -59,11 +80,20 @@ for k=1:iter
   % draw optimal
   xs = feval(S.f_traj, pss(1,:), S);
   crs(k) = cs(1);
+  cs(1)
+
+  if( k > 1 )
+    if( abs(cs(1) -last_cost ) < 0.01 )
+        break;
+    end
+  end
+  last_cost = cs(1);
+  k = k+1;
 
 end
 fprintf("orz")
-path = xs'
-collision_check(map, path)
+path = xs';
+collision_check(map, path);
 cs(1)
 
 
@@ -107,7 +137,7 @@ end
 
 %%%%%%% problem specific %%%%%%%%%%
 
-function S = si_init(map , start , goal ,sn, ng)
+function S = si_init(map , start , goal ,sn, ng ,path)
 
 %S.sys = 'si';
 
@@ -121,6 +151,8 @@ S.f_sample = @si_sample;
 S.f_valid = @si_valid;
 S.f_cost = @si_cost;
 S.map = map;
+S.path = path;
+
 % dimension
 S.n = 3;
 % sn knods
@@ -144,15 +176,7 @@ xs = zeros(n, sn + 2);
 for i=1:n
   xs(i,:) = linspace(xi(i), xf(i), sn+2);
 end
-% xs = [ 0 0 0;
-%        0.5 0.5 0.5;
-%        0.5 2.5 0.5;
-%        3.5 2.5 0.5;
-%        3.5 3.5 0.5;
-%        6.5 3.5 0.5;
-%        6.5 5.5 0.5;
-%        7 6 1;
-%     ]';
+
 
 
 function s = si_sinit(S)
@@ -161,11 +185,12 @@ function s = si_sinit(S)
 s.mu = zeros(S.ng, S.n*S.sn);
 s.Sigma = zeros(S.n*S.sn, S.n*S.sn, S.ng);
 
-xs = stline(S.xi,S.xf, S.sn); 
+%xs = stline(S.xi,S.xf, S.sn); 
+xs = S.path';
 size(xs);
 for j=1:S.ng
   s.mu(j,:) = reshape(xs(:,2:end-1), S.n*S.sn, 1);
-  s.Sigma(:,:,j) = .1*eye(S.n*S.sn);
+  s.Sigma(:,:,j) = 0.1*eye(S.n*S.sn);
 end
 %##############################################################################
 s.PComponents = 1/S.sn*ones(S.ng,1);

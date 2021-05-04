@@ -1,7 +1,7 @@
 function path = dijkstra(map, start , goal)
     %valid = 1;
-    start_idx = pos2idx(map , start);
-    goal_idx  = pos2idx(map , goal );
+    start_idx = pos2idx(map , start)
+    goal_idx  = pos2idx(map , goal )
     
     start_idx =  reshape( start_idx, [1,3]);
     goal_idx  =  reshape( goal_idx , [1,3]);
@@ -60,14 +60,15 @@ function path = dijkstra(map, start , goal)
                     visit(new_x , new_y , new_z ) = 1;
                 end
             end
-%             head
-%             tail
+             %head;
+             %tail-head
          end
      end
-dist
     
     path = [];
     length = 0;
+    fprintf("distance from start point to goal :");
+    dist(goal_idx(1), goal_idx(2), goal_idx(3) )
     if ( dist(goal_idx(1), goal_idx(2), goal_idx(3) ) ) ~= inf
         % start from goal
         cur_p = goal_idx;
@@ -80,13 +81,15 @@ dist
             end
             cur_p = pre(cur_p(1), cur_p(2), cur_p(3), :);
         end
-        path = queue(end-length:end,:)
+        path = queue(end-length+1:end,:);
+    end
+    %path;
+    
+    path = idx2pos(map, path);
+    if size(path, 1) > 0
+        path = [start; path; goal];
+    else
+        path = zeros(0, 3);
     end
     
-% path = idx_to_points(map, path);
-%if size(path, 1) > 0
-% path = [start_xyz; path; goal_xyz];
-% else
-% path = zeros(0, 3);
-% end
 end
