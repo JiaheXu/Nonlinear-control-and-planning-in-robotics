@@ -1,4 +1,4 @@
-function [u1,u2] = controller(state, flatOutput)
+function [u1,u2] = controller(state)
 
 cf = crazyflie();
 

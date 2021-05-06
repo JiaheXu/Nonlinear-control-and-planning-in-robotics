@@ -9,7 +9,8 @@ disp('loading map');
 v = 0.3;
 v2 = 0.5;
 voxel = [v,v,v2];
-map = load_map('C:\Users\Administrator\Desktop\project\maps\map1.txt', voxel );
+% map = load_map('C:\Users\Administrator\Desktop\project\maps\map1.txt', voxel );
+map = load_map('C:\Users\rayzh\Documents\GitHub\Nonlinear-control-and-planning-in-robotics\project\maps\map1.txt', voxel );
 map.occgrid;
 plotcube(map)
 
@@ -120,4 +121,6 @@ path2 = [ 0 0 0;
        6.5 5.5 0.5;
        7 6 1;
     ];
+
+
 

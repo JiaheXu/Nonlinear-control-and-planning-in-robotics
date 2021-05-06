@@ -1,23 +1,23 @@
-function [ desired_state ] = trajectory_generator(t,path)
+function [ desired_state ] = trajectory_generator(t,path,map)
 
 % input----
 % t: current time 
-% path: way points of the path 3xn matrix 
+% path: way points of the path nx3n matrix 
 % output---
 % desired state containing position, velocity, acceleration, jerk, snap,
 % yaw, and yaw angular velocity 
 
 
-n = size(path,2); % number of waypoints
-speed = 2; % speed of the hover, can be tuned
+n = size(path,1); % number of waypoints
+speed = 1; % speed of the hover, can be tuned
 
 time = 0;
-timeVec = zeros(1,n);
-timedtVec = zeros(1,n);
+timeVec = zeros(n,1);
+timedtVec = zeros(n,1);
 
 
 for i = 2:n
-    dist = norm(path(:,i) - path(:,i-1));
+    dist = norm(path(i,:) - path(i-1,:));
     timedtVec(i) = dist/speed;
     time = time + timedtVec(i);
     timeVec(i) = time;
@@ -39,8 +39,8 @@ A(end-2:end, end-5:end) = [dt^5,    dt^4,   dt^3,   dt^2,  dt, 1;
 b(end-2, :) = path(end,:);
 
 for i = 1:n-2
-    dt = timedtVec[i];       
-    A(6*i-2:6*i+4, 6*i-5:6*i+7) =  [dt^5,   dt^4, dt^3, dt^2,dt, 1,   0,0,0,0,0,0;
+    dt = timedtVec(i);       
+    A(6*i-2:6*i+3, 6*i-5:6*i+6) =  [dt^5,   dt^4, dt^3, dt^2,dt, 1,   0,0,0,0,0,0;
                                     0,0,0,0,0,0,                      0,0,0,0,0,1;
                                     5*dt^4,  4*dt^3,3*dt^2,2*dt,1,0,  0,0,0,0,-1,0;
                                     20*dt^3, 12*dt^2,6*dt,2,0,0,      0,0,0,-2,0,0;
@@ -62,10 +62,17 @@ if t >= total_time   % if there is only on point in the path
 else
        
     % 5th order minimum jerk trajectory
-    k = find(ts<=t);
-    k = k(end);
-    dt = t-timeVec(k-1);
-    coeff = solution(6*(k-1)+1:6*k,:);
+%     k = find(timeVec<=t);
+    k = 1;
+    for ii = 1:length(timeVec)
+        if timeVec(i)<=t
+            k = ii;
+        end
+    end
+    
+%     k = k(end);
+    dt = t-timeVec(k);
+    coeff = solution(6*k+1:6*k+6,:);
     pos = [dt^5,     dt^4,    dt^3,    dt^2,    dt,  1]*coeff;
     vel = [5*dt^4,   4*dt^3,  3*dt^2,  2*dt,    1,  0]*coeff;
     acc = [20*dt^3,  12*dt^2, 6*dt,    2,      0,  0]*coeff;
@@ -84,3 +91,7 @@ desired_state.jerk = jerk(:);
 desired_state.snap = snap(:);
 desired_state.yaw = yaw;
 desired_state.yawdot = yawdot;
+
+% if collision_check(map,desired_state.pos)
+%     desired_state = 0;  % if collision happens, return 0 and replan the path 
+% end 
