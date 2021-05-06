@@ -1,58 +1,5 @@
-function [ desired_state ] = trajectory_generator(t,path,map)
-
-% input----
-% t: current time 
-% path: way points of the path nx3n matrix 
-% output---
-% desired state containing position, velocity, acceleration, jerk, snap,
-% yaw, and yaw angular velocity 
-
-
-n = size(path,1); % number of waypoints
-speed = 1; % speed of the hover, can be tuned
-
-time = 0;
-timeVec = zeros(n,1);
-timedtVec = zeros(n,1);
-
-
-for i = 2:n
-    dist = norm(path(i,:) - path(i-1,:));
-    timedtVec(i) = dist/speed;
-    time = time + timedtVec(i);
-    timeVec(i) = time;
-end
-total_time = sum(timedtVec);
-
-% initial boundary
-A = zeros(6 * (n - 1),6 * (n - 1));
-b = zeros(6 * (n - 1), 3);
-A(1:3, 1:6) =  [0, 0, 0, 0, 0, 1;
-                0, 0, 0, 0, 1, 0;
-                0, 0, 0, 2, 0, 0];
-b(1,:) = path(1, :);
-% end boundary
-dt = timedtVec(end);
-A(end-2:end, end-5:end) = [dt^5,    dt^4,   dt^3,   dt^2,  dt, 1;
-                           5*dt^4,  4*dt^3, 3*dt^2, 2*dt,  1,  0;
-                           20*dt^3, 12*dt^2,6*dt,   2,     0,  0];
-b(end-2, :) = path(end,:);
-
-for i = 1:n-2
-    dt = timedtVec(i);       
-    A(6*i-2:6*i+3, 6*i-5:6*i+6) =  [dt^5,   dt^4, dt^3, dt^2,dt, 1,   0,0,0,0,0,0;
-                                    0,0,0,0,0,0,                      0,0,0,0,0,1;
-                                    5*dt^4,  4*dt^3,3*dt^2,2*dt,1,0,  0,0,0,0,-1,0;
-                                    20*dt^3, 12*dt^2,6*dt,2,0,0,      0,0,0,-2,0,0;
-                                    60*dt^2,  24*dt,6,0,0,0,          0,0,-6,0,0,0;
-                                    120*dt^2, 24,0,0,0,0,             0,-24,0,0,0,0];
-    
-    b(6*i-2, :) = path(i, :);
-    b(6*i-1, :) = path(i, :);
-    
-end
-solution = A\b;    
-   
+function [ desired_state ] = trajectory_generator(t,path,solution , timeVec , timedtVec)
+total_time = timeVec(end,1)
 if t >= total_time   % if there is only on point in the path 
     pos = path(end,:);
     vel = [0;0;0];
@@ -65,19 +12,22 @@ else
 %     k = find(timeVec<=t);
     k = 1;
     for ii = 1:length(timeVec)
-        if timeVec(i)<=t
+        if timeVec(ii)<=t
             k = ii;
         end
     end
     
 %     k = k(end);
     dt = t-timeVec(k);
-    coeff = solution(6*k+1:6*k+6,:);
-    pos = [dt^5,     dt^4,    dt^3,    dt^2,    dt,  1]*coeff;
-    vel = [5*dt^4,   4*dt^3,  3*dt^2,  2*dt,    1,  0]*coeff;
-    acc = [20*dt^3,  12*dt^2, 6*dt,    2,      0,  0]*coeff;
-    jerk= [60*dt^2, 24*dt,   6,       0,      0,  0]*coeff;
-    snap= [120*dt,  24,     0,       0,      0,  0]*coeff;
+    %origin
+    %coeff = solution(6*k+1:6*k+6,:);
+    k
+    coeff = solution(6*k-5 : 6*k,:);
+    pos = [dt^5,     dt^4,    dt^3,    dt^2,    dt,  1]*coeff
+    vel = [5*dt^4,   4*dt^3,  3*dt^2,  2*dt,    1,  0]*coeff
+    acc = [20*dt^3,  12*dt^2, 6*dt,    2,      0,  0]*coeff
+    jerk= [60*dt^2, 24*dt,   6,       0,      0,  0]*coeff
+    snap= [120*dt,  24,     0,       0,      0,  0]*coeff
    
 end
 
