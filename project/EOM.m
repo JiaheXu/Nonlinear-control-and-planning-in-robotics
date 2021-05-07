@@ -4,35 +4,27 @@ function [state_dot] = EOM(state,u1,u2)
 % controller 
 cf = crazyflie();
  
-x = state(1);
-y = state(2);
-z = state(3);
-xdot = state(4);
-ydot = state(5);
-zdot = state(6);
-qW = state(7);
-qX = state(8);
-qY = state(9);
-qZ = state(10);
-p = state(11);
-q = state(12);
-r = state(13);
-
-quat = [qW; qX; qY; qZ];
-R = QuatToRot(quat); % convert quaternion to rotation matrix
+x = state.pos(1);
+y = state.pos(2);
+z = state.pos(3);
+xdot = state.vel(1);
+ydot = state.vel(2);
+zdot = state.vel(3);
+phi = state.angle(7);
+theta = state.angle(8);
+psi = state.angle(9);
+p = state.omega(10);
+q = state.omega(11);
+r = state.omega(12);
 
 % Acceleration
 acc = ([0; 0; -cf.mass * cf.grav]+R*[0;0;u1])/cf.mass;
 
-%-----------------------------------------------------------------
 % Angular velocity
-K_quat = 2; %this enforces the magnitude 1 constraint for the quaternion
-quaterror = 1 - (qW^2 + qX^2 + qY^2 + qZ^2);
-qdot = -1/2*[0, -p, -q, -r;...
-             p,  0, -r,  q;...
-             q,  r,  0, -p;...
-             r, -q,  p,  0] * quat + K_quat*quaterror * quat;
-%-----------------------------------------------------------------
+phi_dot = p;
+theta_dot = q;
+psi_dot = r;
+
 %Angular acceleration
 omega = [p;q;r];
 omega_dot = cf.invI * (u2 - cross(omega, cf.I*omega));
@@ -44,13 +36,12 @@ state_dot(3)  = zdot;
 state_dot(4)  = acc(1);
 state_dot(5)  = acc(2);
 state_dot(6)  = acc(3);
-state_dot(7)  = qdot(1);
-state_dot(8)  = qdot(2);
-state_dot(9)  = qdot(3);
-state_dot(10) = qdot(4);
-state_dot(11) = omega_dot(1);
-state_dot(12) = omega_dot(2);
-state_dot(13) = omega_dot(3);
+state_dot(7)  = phi_dot(1);
+state_dot(8)  = theta_dot(2);
+state_dot(9)  = psi_dot(3);
+state_dot(10) = omega_dot(1);
+state_dot(11) = omega_dot(2);
+state_dot(12) = omega_dot(3);
 
 end
 

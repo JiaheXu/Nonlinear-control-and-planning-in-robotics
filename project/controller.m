@@ -1,56 +1,44 @@
-function [u1,u2] = controller(state,flat_output)
+function [u1,u2] = controller(desired_state,current_state,n)
+% desired_state: matrix of all the desited_state
+% n: the current node in desired state 
 
 cf = crazyflie();
 
 %
-Kd = diag([1 1 1]);
-Kp = diag([1 1 1]);
+Kd = [10;10;10];
+Kp = [10;10;10];
 
-x = state(1:3);
-v = state(4:6);
-q = state(7:10);
-w = state(11:13);
-x_T = flat_output(1:3);
-x_T_dt = flat_output(4:6);
-x_T_ddt = flat_output(7:9);
-x_T_dddt = flat_output(10:12);
-yaw_T = flat_output(13);
-yaw_T_dt = flat_output(14);
+% x = state(1:3);
+% v = state(4:6);
+% q = state(7:10);
+% w = state(11:13);
 
-x_T_ddt_des = x_T_ddt - Kd*(v - x_T_dt) - Kp*(r - r_T);
-F_des = cf.mass * x_T_ddt_des + [0, 0, cf.mass * cf.g];
-R_state = quat2rotm(q);
+x = current_state{n}.pos;
+x_dt = current_state{n}.vel;
+x_ddt = current_state{n}.acc;
+yaw = current_state{n}.yaw;
+yaw_dt = current_state{n}.yawdot;
+angle = current_state{n}.angle;
+omega = current_state{n}.omega;
 
-b_3 = R_state(:, 3);
-u1 = b_3 * F_des;
+x_des = desired_state{n}.pos;
+x_dt_des = desired_state{n}.vel;
+x_ddt_des = desired_state{n}.acc;
+yaw_des = desired_state{n}.yaw;
+yaw_dt_des = desired_state{n}.yawdot;
 
-a_yaw = [cos(yaw_T), sin(yaw_T), 0];
+%desired acceleration 
+x_ddt_des = x_ddt_des - Kd.*(x_dt - x_dt_des) - Kp.*(x - x_des);
 
-b_3_des = F_des / norm(F_des);
-b_2_des = b_3_des* a_yaw / norm(b_3_des* a_yaw);
-b_1_des = b_2_des* b_3_des;
+% Desired roll, pitch
+phi_des = 1/cf.g * (x_ddt_des(1)*sin(yaw_des) - x_ddt_des(2)*cos(yaw_des));
+theta_des = 1/cf.g * (x_ddt_des(1)*cos(yaw_des) + x_ddt_des(2)*sin(yaw_des));
+psi_des = yaw_des;
 
-R_des = zeros(3, 3);
-R_des(:, 1) = b_1_des;
-R_des(:, 2) = b_2_des;
-R_des(:, 3) = b_3_des;
+angle_des = [phi_des;theta_des;psi_des];
+omega_des = [0;0;yaw_dt_des];
 
-e_R = 0.5 * (R_des' * R_state - R_state' * R_des);
-e_R = [-e_R(2,3); e_R(1,3); -e_R(1,2)];
-e_w = w';
 
-u2 =cf.I * (-cf.Kr * e_R - Kw * e_w);
-% gamma = cf.k_drag /cf.k_thrust;
-% u = [u_1; u_2];
-% 
-% L = cf.arm_length;
-% f_i = [1, 1, 1, 1;
-%     0, L, 0, -L;
-%     -L, 0, L, 0;
-%     gamma, -gamma, gamma, -gamma];
-% 
-% f_i = inv(f_i_mat) * u;
-% 
-% cmd_thrust = u_1;
-% cmd_moment = u_2;
+u1 = cf.mass * x_ddt_des(3,1) + cf.mass * cf.g;
 
+u2 = cf.I * (-Kd_2 * (omega - omega_des) - Kp_2 * (angle - angle_des);
