@@ -6,7 +6,8 @@ addpath(genpath('./'));
 v = 0.3;
 v2 = 0.5;
 voxel = [v,v,v2];
-map = load_map('C:\Users\Administrator\Desktop\project\maps\map1.txt', voxel );
+% map = load_map('C:\Users\Administrator\Desktop\project\maps\map1.txt', voxel );
+map = load_map('C:\Users\rayzh\Documents\GitHub\Nonlinear-control-and-planning-in-robotics\project\maps\map1.txt', voxel );
 % valid path1
 path = [
     0         0         0

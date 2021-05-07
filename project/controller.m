@@ -1,4 +1,4 @@
-function [u1,u2] = controller(state)
+function [u1,u2] = controller(state,flat_output)
 
 cf = crazyflie();
 
@@ -22,12 +22,13 @@ F_des = cf.mass * x_T_ddt_des + [0, 0, cf.mass * cf.g];
 R_state = quat2rotm(q);
 
 b_3 = R_state(:, 3);
-u_1 = b_3 * F_des;
+u1 = b_3 * F_des;
 
 a_yaw = [cos(yaw_T), sin(yaw_T), 0];
-b_1_des = b_2_des* b_3_des;
-b_2_des = b_3_des* a_yaw / norm(b_3_des* a_yaw);
+
 b_3_des = F_des / norm(F_des);
+b_2_des = b_3_des* a_yaw / norm(b_3_des* a_yaw);
+b_1_des = b_2_des* b_3_des;
 
 R_des = zeros(3, 3);
 R_des(:, 1) = b_1_des;
@@ -38,7 +39,7 @@ e_R = 0.5 * (R_des' * R_state - R_state' * R_des);
 e_R = [-e_R(2,3); e_R(1,3); -e_R(1,2)];
 e_w = w';
 
-u_2 =cf.I * (-cf.Kr * e_R - Kw * e_w);
+u2 =cf.I * (-cf.Kr * e_R - Kw * e_w);
 % gamma = cf.k_drag /cf.k_thrust;
 % u = [u_1; u_2];
 % 
