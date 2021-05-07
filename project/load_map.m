@@ -1,4 +1,3 @@
-%map = lad_map('C:\Users\Administrator\Desktop\quadrotor-master\traj_planning\maps\map1.txt', [0.1, 0.1, 2])
 function map = load_map(filename, res_xyz)
 % MAP = LOAD_MAP(filename, res_xy, res_z, margin) loads the environment
 %   res_xyz   - 1x3 vector of the length (in meters) of each side of the each voxel in the grid
@@ -67,9 +66,8 @@ map.occgrid = reshape( zeros(wdh),[width, depth, height]);
 %valid = 1;
 for i = 1:m
   ijk_min = pos2idx(map, blocks(i,1:3));
-  ijk_max = pos2idx(map, blocks(i,4:6) - res_xyz) ;
+  ijk_max = pos2idx(map, blocks(i,4:6)) ;
   map.occgrid(ijk_min(1):ijk_max(1), ijk_min(2):ijk_max(2),ijk_min(3):ijk_max(3)) = 1;
 end
 
 end
-

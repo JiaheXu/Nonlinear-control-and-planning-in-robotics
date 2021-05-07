@@ -22,10 +22,10 @@ sn = size(path,1) - 2  % total intermediate knots
 ng = 1;  % number of Gaussian mixture models
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-iter = 10; % total iterations
+iter = 100; % total iterations
 
 S = si_init(map , start , goal , sn ,  ng , path);
-N = 50;  % total samples
+N = 100;  % total samples
 % take top 10%
 p =.1;    % rho-quantile
 nf = round(p*N);
@@ -38,11 +38,13 @@ last_cost = 0.0;
 uf = 0;   % set to 1 to generate and save separate plots for each iteration
 S.uf = uf;
 pss = zeros(N, S.n*S.sn);
-%for k=1:iter
+
 k = 1;
-while( 1 )
+tmp = s.mu;
+for k=1:iter
+%while( 1 )
     S.k = k;  
-    tic
+    %tic
     j0 = 2;
     if k==1
         j0=1;
@@ -53,8 +55,8 @@ while( 1 )
         pss(j,:) = feval(S.f_sample, s, 1, S);
         % xs应该是右边示意图的点 是真正路径？
         xs = feval(S.f_traj, pss(j,:), S);
-        % ss 存每轮生成的随机点？for what？
-        
+        % xs 存每轮生成的随机点？for what？
+      
         size(xs);
         
         S.ss(j).xs = xs;
@@ -62,34 +64,40 @@ while( 1 )
         S.ss(j).c = feval(S.f_cost, pss(j,:), S);
         S.ss(j).c;
     end
-  toc
+  %toc
   
-  fprintf('finished round %d',k);
-  tic
+  fprintf('finished round %d\n',k);
+%  tic
   %把N轮 由Sn个随机点的组成的随机路径排序
   [pss, cs] = ce_sort(pss, S);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  a = 0.9;
-  %只按前nf好的sample更新
-  sn = ce_fit(pss(1:nf,:), s, S);
   
+  %只按前nf好的sample更新
+  
+  sn = ce_fit(pss(1:nf,:), s, S);
+  %fprintf("mu!!!!\n");
+  %norm(tmp - s.mu)
+  %s.mu = pss(1,:);
+  a = 0.9;
   s.mu = a*sn.mu + (1-a)*s.mu;
-  s.Sigma = a*sn.Sigma + (1-a)*s.Sigma;
-  toc ;
+  %s.mu = (1-a)*sn.mu + a*s.mu;
+  %size(s.mu)
+%   sn.mu
+%   s.mu
+  
+%   s.mu
+  
+  b = 0.9;
+  s.Sigma = b*sn.Sigma + (1-b)*s.Sigma;
+  %norm(s.Sigma)
+%  toc ;
  
   % draw optimal
   xs = feval(S.f_traj, pss(1,:), S);
+  %s.mu = xs;
   crs(k) = cs(1);
   cs(1)
-
-  if( k > 1 )
-    if( abs(cs(1) -last_cost ) < 0.01 )
-        break;
-    end
-  end
-  last_cost = cs(1);
-  k = k+1;
-
+       
 end
 fprintf("orz")
 path = xs';
@@ -190,9 +198,10 @@ xs = S.path';
 size(xs);
 for j=1:S.ng
   s.mu(j,:) = reshape(xs(:,2:end-1), S.n*S.sn, 1);
-  s.Sigma(:,:,j) = 0.1*eye(S.n*S.sn);
+  %##############################################################################
+  s.Sigma(:,:,j) = 0.5*eye(S.n*S.sn);
 end
-%##############################################################################
+
 s.PComponents = 1/S.sn*ones(S.ng,1);
 
 
@@ -206,29 +215,39 @@ s.PComponents = 1/S.sn*ones(S.ng,1);
 function path = si_traj(ps, S)
 xs = reshape(ps , S.n , length(ps)/S.n  );
 xs = [ S.xi , xs , S.xf];
-xs';
-points = 60;
-path = zeros(S.n,(size(xs,2) - 1 )*points + 1 );  
-for j = 1:3
-    for i=1:size(xs,2)-1
-      path( j , (i-1)*points + 1 : i*points + 1) = linspace(xs(j,i), xs(j,i+1), points + 1 );
-    end
-end
-%path = path';
+path =xs;
 
 % 按各个高斯分布生成随机点 对应只生成一个点
 function ps = si_sample(s, c, S)
 
 ps = zeros(1, S.n*S.sn);
 while(1)
-
+    last_ind = [];
     for i=1:S.sn
-      ind = (i-1)*S.n + (1:S.n);
-      ps(ind) = mvnrnd(s.mu(ind), s.Sigma(ind,ind), 1);
+        ind = (i-1)*S.n + (1:S.n);
+        while(1)
+            ps(ind) = mvnrnd(s.mu(ind), s.Sigma(ind,ind), 1);
+            if(collision_check(S.map, ps(ind)) == 0)
+                    break
+            end
+%             if (i==1)
+%                 if(collision_check(S.map, ps(ind)) == 0)
+%                     break
+%                 end
+%             else
+%                 if( points_path_inside(ps(last_ind),ps(ind) , S) ==0)
+%                     break;
+%                 end
+%             end    
+        end
+        last_ind = ind;
     end
-  
-  
-    if (c==0 || feval(S.f_valid, ps, S) == 1)
+    flag = feval(S.f_valid, ps, S);
+    if(flag == 1)
+        fprintf("valid sample\n");
+    end
+    
+    if (c==0 || flag == 1)
         break
     end
 end
@@ -261,22 +280,14 @@ if (si_inside(ps, S) == 1)
     return
 end
 
-
 function f = si_inside(xs, S)
 % f is 0, then collision free
 % f is 1, then have collision
-size(xs);
-points = 60;
-path = zeros(S.n,(size(xs,2) - 1 )*points + 1 );  
-for j = 1:3
-    for i=1:size(xs,2)-1
-      path( j , (i-1)*points + 1 : i*points + 1) = linspace(xs(j,i), xs(j,i+1), points + 1 );
+xs = xs';
+f = 0;
+for i = 2:size(xs,1)
+    if( subpath_check(S.map , xs(i-1,:) , xs(i,:) ) == 1)
+        f = 1;
+        break;
     end
-end
-%#########################################
-path = path';
-if( collision_check(S.map, path) == 1 )
-    f = 1;
-else
-    f = 0;
 end

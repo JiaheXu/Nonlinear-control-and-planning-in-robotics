@@ -6,28 +6,73 @@ addpath(genpath('./'));
 % test for load_map
 disp('loading map');
 % voxel's width depth and height better to be the same value
-v = 0.3;
-v2 = 0.5;
+v = 0.1;
+v2 = 0.2;
 voxel = [v,v,v2];
-% map = load_map('C:\Users\Administrator\Desktop\project\maps\map1.txt', voxel );
-map = load_map('C:\Users\rayzh\Documents\GitHub\Nonlinear-control-and-planning-in-robotics\project\maps\map1.txt', voxel );
+map = load_map('C:\Users\Administrator\Desktop\project\maps\map3.txt', voxel );
 map.occgrid;
 plotcube(map)
-
-start = map.boundary(1:3);
-goal = map.boundary(4:6);
-
-collision_check( map , start);
-collision_check( map , goal);
+% 
+start = map.boundary(1:3)
+goal = map.boundary(4:6)
 
 path = dijkstra( map , start, goal);
-collision_check( map , path);
 
 plot3(path(:,1), path(:,2), path(:,3), '-b');
+hold on
 path = find_corner(path);
-path = CEM( map , path , start, goal);
+path = CEM( map , path , start, goal)
+
 plot3(path(:,1), path(:,2), path(:,3), '-g');
-plotcube(map)
+hold on 
+% path =[
+%          0         0         0
+%     0.5913    0.6475    0.4486
+%     1.0189    2.1353    0.5779
+%     2.5732    2.5652    1.2788
+%     3.5257    2.9342    1.7865
+%     3.9401    3.2465    2.2173
+%     4.9250    3.7122    2.8868
+%     5.8049    3.9219    3.0740
+%     6.5386    5.4535    4.4235
+%     7.0000    6.0000    5.0000];
+% 
+% path = build_line(path(8:9 , : ) ,800);
+% collision_check( map , path)
+% path = build_line(path,10);
+% plot3(path(:,1), path(:,2), path(:,3), '-g');
+% hold on ;
+plotcube(map);
+
+% time = 0;
+% tstep = 0.01;
+% ind = 1;
+% 
+% x = zeros(1000,1);
+% y = zeros(1000,1);
+% z = zeros(1000,1);
+% [sol, timeVec ,timedtVec ]= minimum_jerk(path);
+% 
+% for t = 0:tstep:timeVec(end,1)
+% %for t = 1:1
+%     desired_state = trajectory_generator(t , path , sol , timeVec ,timedtVec );
+%      x(ind) = desired_state.pos(1,1);
+%      y(ind) = desired_state.pos(2,1);
+%      z(ind) = desired_state.pos(3,1);
+%     ind = ind+1; 
+% end
+% plot3(x,y,z,'-y');
+% hold on;
+% plotcube(map);
+% time_tol = 30;          % maximum simulation time
+% starttime = 0;          % start of simulation in seconds
+% 
+% tstep     = 0.01;       % this determines the time step at which the solution is given
+% cstep     = 0.05;       % image capture time interval
+% nstep     = cstep/tstep;
+% time      = starttime;  % current time
+% max_iter  = time_tol / cstep;      % max iteration
+
 
 %path = CEM( map , start, goal)
 
@@ -121,6 +166,3 @@ path2 = [ 0 0 0;
        6.5 5.5 0.5;
        7 6 1;
     ];
-
-
-
