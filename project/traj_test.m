@@ -78,6 +78,7 @@ start = [0;0;0];
 state0 = zeros(12,1);
 state0(1:3,1) = start;
 sn = 1; 
+t_interval = 0:tstep:timeVec(end-1,1);
 
 for i = 0:tstep:timeVec(end,1)
     state{sn}    = state0;
@@ -94,7 +95,7 @@ for t = 0:tstep:timeVec(end,1)
     z(ind) = desired_state.pos(3,1);
     ind = ind+1;
     
-    [tsave, xsave] = ode45(@(t,s) EOM(t, s, qn, @controller, @trajectory_generator), t,state{ind});
+    [tsave, xsave] = ode45(@(t,s) EOM(state{sn},@controller),t_interval,state{ind});
 %     x{qn} = xsave(end, :)';
     % Save to traj
 %     xtraj{qn}((iter-1)*nstep+1:iter*nstep,:) = xsave(1:end-1,:);
