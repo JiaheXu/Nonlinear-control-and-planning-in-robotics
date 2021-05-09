@@ -6,9 +6,13 @@ cf = crazyflie();
 
 %
 Kd = [10;10;10];
+Kd = diag(Kd);
 Kp = [10;10;10];
+Kp = diag(Kp);
 Kd_2 = [10;10;10];
+Kd_2 = diag(Kd_2);
 Kp_2 = [10;10;10];
+Kp_2 = diag(Kp_2);
 
 
 % x = state(1:3);
@@ -29,7 +33,30 @@ yaw_T = desired_state.yaw;
 yaw_dt_T = desired_state.yawdot;
 
 %desired acceleration 
-x_ddt_des = x_ddt_T - Kd.*(x_dt - x_dt_T) - Kp.*(x - x_T);
+% fprintf('x_ddt_T\n')
+% size(x_ddt_T)
+% 
+% fprintf('x_dt - x_dt_T\n')
+% size(x_dt - x_dt_T)
+% 
+% fprintf('x -----\n')
+% size(x)
+% 
+% fprintf('x_T------\n')
+% size(x_T)
+% 
+% fprintf('x - x_T\n')
+% size( x - x_T )
+% 
+% fprintf('Kd*(x_dt - x_dt_T)\n')
+% size( Kd*(x_dt - x_dt_T) )
+
+
+% 
+% fprintf('Kp*(x - x_T)\n')
+% size(Kp*(x - x_T))
+x_ddt_des = x_ddt_T - Kd*(x_dt - x_dt_T) - Kp*(x - x_T);
+% fprintf('%d   %d   %d   %d   %d   %d \n',size(x_ddt_T,1),size(x_ddt_T,2),size(x_dt,1),size(x_dt,2),size(x_dt_T,1),size(x_dt_T,2));
 
 % Desired roll, pitch, yaw
 angle1_des = 1/cf.g * (x_ddt_des(1)*sin(yaw_T) - x_ddt_des(2)*cos(yaw_T));
@@ -42,4 +69,4 @@ omega_des = [0;0;yaw_dt_T];
 
 u1 = cf.mass * x_ddt_des(3,1) + cf.mass * cf.g;
 
-u2 = cf.I * (-Kd_2 .* (omega - omega_des) - Kp_2 .* (angle - angle_des));
+u2 = cf.I * (-Kd_2 * (omega - omega_des) - Kp_2 * (angle - angle_des));

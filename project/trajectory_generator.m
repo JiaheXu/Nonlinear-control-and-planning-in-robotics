@@ -1,5 +1,10 @@
 function [ desired_state ] = trajectory_generator(t,path,solution , timeVec , timedtVec)
 total_time = timeVec(end,1);
+pos = path(end,:);
+vel = [0;0;0];
+acc = [0;0;0];
+jerk =[0;0;0];
+snap =[0;0;0];
 if t >= total_time   % if there is only on point in the path 
     pos = path(end,:);
     vel = [0;0;0];
