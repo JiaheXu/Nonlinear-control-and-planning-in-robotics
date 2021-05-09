@@ -4,21 +4,24 @@ function [u1,u2] = controller(desired_state,current_state)
 
 cf = crazyflie();
 
-%
-Kd = [0.4;0.4;0.2];
+% 
+% Kd = [0.2;0.5;1.6];
+% Kd = diag(Kd);
+% Kp = [0.32;0.15;1.5];
+% Kp = diag(Kp);
+% Kd_2 = [1.2;1.5;4];
+% Kd_2 = diag(Kd_2);
+% Kp_2 = [1.3;1.0;4];
+% Kp_2 = diag(Kp_2);
+
+Kd = [0.8;0.4;6];
 Kd = diag(Kd);
-Kp = [0.1;0.1;0.1];
+Kp = [0.3;0.15;4.0];
 Kp = diag(Kp);
-Kd_2 = [0.2;0.4;0.2];
+Kd_2 = [1.3;2;3];
 Kd_2 = diag(Kd_2);
-Kp_2 = [0.2;0.5;0.3];
+Kp_2 = [1.4;1.5;5];
 Kp_2 = diag(Kp_2);
-
-
-% x = state(1:3);
-% v = state(4:6);
-% q = state(7:10);
-% w = state(11:13);
 
 x = current_state(1:3,1);
 x_dt = current_state(4:6,1);
