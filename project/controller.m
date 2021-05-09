@@ -35,11 +35,11 @@ yaw_dt_T = desired_state{n}.yawdot;
 x_ddt_des = x_ddt_T - Kd.*(x_dt - x_dt_T) - Kp.*(x - x_T);
 
 % Desired roll, pitch, yaw
-phi_des = 1/cf.g * (x_ddt_T(1)*sin(yaw_T) - x_ddt_T(2)*cos(yaw_T));
-theta_des = 1/cf.g * (x_ddt_T(1)*cos(yaw_T) + x_ddt_T(2)*sin(yaw_T));
-psi_des = yaw_T;
+angle1_des = 1/cf.g * (x_ddt_des(1)*sin(yaw_T) - x_ddt_des(2)*cos(yaw_T));
+angle2_des = 1/cf.g * (x_ddt_des(1)*cos(yaw_T) + x_ddt_des(2)*sin(yaw_T));
+angle3_des = yaw_T;
 
-angle_des = [phi_des;theta_des;psi_des];
+angle_des = [angle1_des;angle2_des;angle3_des];
 omega_des = [0;0;yaw_dt_T];
 
 

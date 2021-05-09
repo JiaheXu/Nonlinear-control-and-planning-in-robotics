@@ -55,13 +55,13 @@ path = [
     7.0000    6.0000    1.0000];
 % valid path2
 path1 = [ 0 0 0;
-       0.5 0.5 0.5;
-       0.5 2.5 0.5;
-       3.5 2.5 0.5;
-       3.5 3.5 0.5;
-       6.5 3.5 0.5;
-       6.5 5.5 0.5;
-       7 6 1;
+    0.5 0.5 0.5;
+    0.5 2.5 0.5;
+    3.5 2.5 0.5;
+    3.5 3.5 0.5;
+    6.5 3.5 0.5;
+    6.5 5.5 0.5;
+    7 6 1;
     ];
 plot3(path(:,1),path(:,2),path(:,3), '-r')
 hold on
@@ -73,13 +73,33 @@ x = zeros(1000,1);
 y = zeros(1000,1);
 z = zeros(1000,1);
 [sol, timeVec ,timedtVec ]= minimum_jerk(path);
+state_num = timeVec(end,1)/tstep+1;
+start = [0;0;0];
+state0 = zeros(12,1);
+state0(1:3,1) = start;
+sn = 1; 
+
+for i = 0:tstep:timeVec(end,1)
+    state{sn}    = state0;
+%     xtraj{sn} = zeros(state_num, 12);
+%     ttraj{sn} = zeros(state_num, 1);
+    sn = sn+1;
+end
 
 for t = 0:tstep:timeVec(end,1)
-%for t = 1:1
+    %for t = 1:1
     desired_state = trajectory_generator(t , path , sol , timeVec ,timedtVec );
-     x(ind) = desired_state.pos(1,1);
-     y(ind) = desired_state.pos(2,1);
-     z(ind) = desired_state.pos(3,1);
-    ind = ind+1; 
+    x(ind) = desired_state.pos(1,1);
+    y(ind) = desired_state.pos(2,1);
+    z(ind) = desired_state.pos(3,1);
+    ind = ind+1;
+    
+    [tsave, xsave] = ode45(@(t,s) EOM(t, s, qn, @controller, @trajectory_generator), t,state{ind});
+%     x{qn} = xsave(end, :)';
+    % Save to traj
+%     xtraj{qn}((iter-1)*nstep+1:iter*nstep,:) = xsave(1:end-1,:);
+%     ttraj{qn}((iter-1)*nstep+1:iter*nstep)   = tsave(1:end-1);
+    
 end
 plot3(x,y,z);
+
