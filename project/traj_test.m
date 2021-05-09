@@ -78,7 +78,7 @@ start = [0;0;0];
 state0 = zeros(12,1);
 state0(1:3,1) = start;
 sn = 1; 
-t_interval = 0:tstep:timeVec(end-1,1);
+t_interval = 0:tstep:timeVec(end,1);
 
 for i = 0:tstep:timeVec(end,1)
     state{sn}    = state0;
@@ -88,19 +88,24 @@ for i = 0:tstep:timeVec(end,1)
 end
 
 for t = 0:tstep:timeVec(end,1)
-    %for t = 1:1
-    desired_state = trajectory_generator(t , path , sol , timeVec ,timedtVec );
-    x(ind) = desired_state.pos(1,1);
-    y(ind) = desired_state.pos(2,1);
-    z(ind) = desired_state.pos(3,1);
-    ind = ind+1;
-    
-    [tsave, xsave] = ode45(@(t,s) EOM(state{sn},@controller),t_interval,state{ind});
-%     x{qn} = xsave(end, :)';
-    % Save to traj
-%     xtraj{qn}((iter-1)*nstep+1:iter*nstep,:) = xsave(1:end-1,:);
-%     ttraj{qn}((iter-1)*nstep+1:iter*nstep)   = tsave(1:end-1);
+    if ind<length(t_interval)
+        %for t = 1:1
+        desired_state = trajectory_generator(t , path , sol , timeVec ,timedtVec );
+        x(ind) = desired_state.pos(1,1);
+        y(ind) = desired_state.pos(2,1);
+        z(ind) = desired_state.pos(3,1);
+        ind = ind+1;
+        [u1,u2] = controller(desired_state , state{ind});
+        state_dot = EOM(state0 , u1,u2);
+        [tsave, xsave] = ode45(@(t,s) state_dot,t_interval,state{ind});
+        
+    %     x{qn} = xsave(end, :)';
+        % Save to traj
+    %     xtraj{qn}((iter-1)*nstep+1:iter*nstep,:) = xsave(1:end-1,:);
+    %     ttraj{qn}((iter-1)*nstep+1:iter*nstep)   = tsave(1:end-1);
+    end
     
 end
 plot3(x,y,z);
+
 

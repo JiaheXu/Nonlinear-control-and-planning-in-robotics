@@ -10,7 +10,9 @@ classdef crazyflie < handle
             0,         1.43e-5,    0;
             0,         0,          2.89e-5];
         arm_Length = 0.046; % arm length in m
-        invI = inv(I);
+        invI = inv([1.43e-5,   0,          0; % inertial tensor in m^2 kg
+            0,         1.43e-5,    0;
+            0,         0,          2.89e-5]);
         rotor_speed_min = 0;    % rad/s
         rotor_speed_max= 2500;  % rad/s
         k_thrust = 2.3e-08;     % N/(rad/s)**2

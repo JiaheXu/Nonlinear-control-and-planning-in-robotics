@@ -1,5 +1,5 @@
 function [ desired_state ] = trajectory_generator(t,path,solution , timeVec , timedtVec)
-total_time = timeVec(end,1)
+total_time = timeVec(end,1);
 if t >= total_time   % if there is only on point in the path 
     pos = path(end,:);
     vel = [0;0;0];
@@ -21,13 +21,13 @@ else
     dt = t-timeVec(k);
     %origin
     %coeff = solution(6*k+1:6*k+6,:);
-    k
+    k;
     coeff = solution(6*k-5 : 6*k,:);
-    pos = [dt^5,     dt^4,    dt^3,    dt^2,    dt,  1]*coeff
-    vel = [5*dt^4,   4*dt^3,  3*dt^2,  2*dt,    1,  0]*coeff
-    acc = [20*dt^3,  12*dt^2, 6*dt,    2,      0,  0]*coeff
-    jerk= [60*dt^2, 24*dt,   6,       0,      0,  0]*coeff
-    snap= [120*dt,  24,     0,       0,      0,  0]*coeff
+    pos = [dt^5,     dt^4,    dt^3,    dt^2,    dt,  1]*coeff;
+    vel = [5*dt^4,   4*dt^3,  3*dt^2,  2*dt,    1,  0]*coeff;
+    acc = [20*dt^3,  12*dt^2, 6*dt,    2,      0,  0]*coeff;
+    jerk= [60*dt^2, 24*dt,   6,       0,      0,  0]*coeff;
+    snap= [120*dt,  24,     0,       0,      0,  0]*coeff;
    
 end
 

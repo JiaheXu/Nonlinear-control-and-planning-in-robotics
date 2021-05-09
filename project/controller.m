@@ -1,4 +1,4 @@
-function [u1,u2] = controller(desired_state,current_state,n)
+function [u1,u2] = controller(desired_state,current_state)
 % desired_state: matrix of all the desited_state
 % n: the current node in desired state 
 
@@ -16,20 +16,17 @@ Kp_2 = [10;10;10];
 % q = state(7:10);
 % w = state(11:13);
 
-x = current_state{n}.pos;
-x_dt = current_state{n}.vel;
-x_ddt = current_state{n}.acc;
-yaw = current_state{n}.yaw;
-yaw_dt = current_state{n}.yawdot;
-angle = current_state{n}.angle;
-omega = current_state{n}.omega;
+x = current_state(1:3,1);
+x_dt = current_state(4:6,1);
+angle = current_state(7:9,1);
+omega = current_state(10:12,1);
 
 % desired states from trajectory generator 
-x_T = desired_state{n}.pos;
-x_dt_T = desired_state{n}.vel;
-x_ddt_T = desired_state{n}.acc;
-yaw_T = desired_state{n}.yaw;
-yaw_dt_T = desired_state{n}.yawdot;
+x_T = desired_state.pos;
+x_dt_T = desired_state.vel;
+x_ddt_T = desired_state.acc;
+yaw_T = desired_state.yaw;
+yaw_dt_T = desired_state.yawdot;
 
 %desired acceleration 
 x_ddt_des = x_ddt_T - Kd.*(x_dt - x_dt_T) - Kp.*(x - x_T);
@@ -45,4 +42,4 @@ omega_des = [0;0;yaw_dt_T];
 
 u1 = cf.mass * x_ddt_des(3,1) + cf.mass * cf.g;
 
-u2 = cf.I * (-Kd_2 * (omega - omega_des) - Kp_2 * (angle - angle_des));
+u2 = cf.I * (-Kd_2 .* (omega - omega_des) - Kp_2 .* (angle - angle_des));
