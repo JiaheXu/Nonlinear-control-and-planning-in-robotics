@@ -5,13 +5,13 @@ function [u1,u2] = controller(desired_state,current_state)
 cf = crazyflie();
 
 %
-Kd = [10;10;10];
+Kd = [0.4;0.4;0.2];
 Kd = diag(Kd);
-Kp = [10;10;10];
+Kp = [0.1;0.1;0.1];
 Kp = diag(Kp);
-Kd_2 = [10;10;10];
+Kd_2 = [0.2;0.4;0.2];
 Kd_2 = diag(Kd_2);
-Kp_2 = [10;10;10];
+Kp_2 = [0.2;0.5;0.3];
 Kp_2 = diag(Kp_2);
 
 
