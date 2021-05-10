@@ -3,7 +3,7 @@ function plotcube(map)
     for i = 1:size(map.blocks , 1)
         edges = map.blocks(i ,4:6) - map.blocks(i ,1:3);
         origin = map.blocks(i ,1:3);
-        plot_obstacle(edges,origin,1,[1 0 0])
+        plot_obstacle(edges,origin,1,[0 1 0])
         view(3);
     end
 %plot_obstacle([5 5 5],[ 2  2  2],1,[1 0 0]);

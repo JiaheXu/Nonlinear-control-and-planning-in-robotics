@@ -1,28 +1,9 @@
-function path = CEM( map ,path, start, goal)
-% function  luck()
-% clear;
-% clc;
-% v = 1;
-% v2 = 1;
-% voxel = [v,v,v2];
-% map = load_map('C:\Users\Administrator\Desktop\project\maps\map0.txt', voxel );
-% map.occgrid;
-% start = [0,0,0];
-% goal = [7,6,1];
-% path =[
-% 0         0         0
-%     0.5000    0.5000    0.5000
-%     0.5000    2.5000    0.5000
-%     3.5000    2.5000    0.5000
-%     3.5000    3.5000    0.5000
-%     6.5000    3.5000    0.5000
-%     6.5000    5.5000    0.5000
-%     7.0000    6.0000    1.0000];
+function [path , crs, Time ] = CEM( map ,path, start, goal,iter)
 sn = size(path,1) - 2  % total intermediate knots
 ng = 1;  % number of Gaussian mixture models
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-iter = 100; % total iterations
+%iter = 400; % total iterations
 
 S = si_init(map , start , goal , sn ,  ng , path);
 N = 100;  % total samples
@@ -34,6 +15,8 @@ s = feval(S.f_sinit, S);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %crs = inf*ones(1,iter);
 crs = inf*ones(1,10000);
+Time = zeros(1,10000);
+
 last_cost = 0.0;
 uf = 0;   % set to 1 to generate and save separate plots for each iteration
 S.uf = uf;
@@ -44,7 +27,7 @@ tmp = s.mu;
 for k=1:iter
 %while( 1 )
     S.k = k;  
-    %tic
+    tic
     j0 = 2;
     if k==1
         j0=1;
@@ -64,7 +47,7 @@ for k=1:iter
         S.ss(j).c = feval(S.f_cost, pss(j,:), S);
         S.ss(j).c;
     end
-  %toc
+  
   
   fprintf('finished round %d\n',k);
 %  tic
@@ -80,27 +63,18 @@ for k=1:iter
   %s.mu = pss(1,:);
   a = 0.9;
   s.mu = a*sn.mu + (1-a)*s.mu;
-  %s.mu = (1-a)*sn.mu + a*s.mu;
-  %size(s.mu)
-%   sn.mu
-%   s.mu
-  
-%   s.mu
-  
   b = 0.9;
   s.Sigma = b*sn.Sigma + (1-b)*s.Sigma;
-  %norm(s.Sigma)
-%  toc ;
- 
-  % draw optimal
   xs = feval(S.f_traj, pss(1,:), S);
-  %s.mu = xs;
   crs(k) = cs(1);
+  Time(k) = toc;
   cs(1)
        
 end
 fprintf("orz")
 path = xs';
+crs = crs(1,1:k);
+Time = Time(1,1:k);
 collision_check(map, path);
 cs(1)
 
@@ -244,7 +218,7 @@ while(1)
     end
     flag = feval(S.f_valid, ps, S);
     if(flag == 1)
-        fprintf("valid sample\n");
+        %fprintf("valid sample\n");
     end
     
     if (c==0 || flag == 1)
