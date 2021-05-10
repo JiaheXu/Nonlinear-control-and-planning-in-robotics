@@ -17,7 +17,7 @@ function [solution ,timeVec, timedtVec ] = minimum_jerk(path)
 % yaw, and yaw angular velocity 
 
 n = size(path,1); % number of waypoints
-speed = 1; % speed of the hover, can be tuned
+speed = 0.2; % speed of the hover, can be tuned
 
 time = 0;
 % timeVec(i) is the start time of i-th segment( from point i-1 to i)
