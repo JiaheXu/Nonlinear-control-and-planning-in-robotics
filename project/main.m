@@ -58,8 +58,8 @@ for t = 0:tstep:timeVec(end,1)
     end
     
 end
-% plot3(x_des,y_des,z_des)
-% hold on
+plot3(x_des,y_des,z_des)
+hold on
 
 T = sum(timedtVec);
 %initial state
