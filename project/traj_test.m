@@ -105,7 +105,7 @@ for t = 0:tstep:timeVec(end,1)
     end
     
 end
-plot3(x,y,z);
+% plot3(x,y,z);
 
 T = sum(timedtVec);
 %initial state
