@@ -10,7 +10,8 @@ v = 0.1;
 v2 = 0.2;
 voxel = [v,v,v2];
 
-map = load_map('C:\Users\Administrator\Desktop\project\maps\map3.txt', voxel );
+% map = load_map('C:\Users\Administrator\Desktop\project\maps\map3.txt', voxel );
+map = load_map('C:\Users\rayzh\Documents\GitHub\Nonlinear-control-and-planning-in-robotics\project\maps\map1.txt', voxel );
 
 map.occgrid;
 plotcube(map)
@@ -71,8 +72,18 @@ S.timedtVec = timedtVec;
 S.pt = pt;
 
 [ts, xs] = ode45(@uni_ode , [0 T], x, [], S);
-plot3(xs(:,1),xs(:,2),xs(:,3),'-r')
 
+% plot3(xs(:,1),xs(:,2),xs(:,3),'-r')
+v = VideoWriter('quadPlanner.avi');
+% v.FrameRate = 1;
+open(v);
+for i = 1:20:size(xs,1)-20
+    plot3(xs(i:i+19,1),xs(i:i+19,2),xs(i:i+19,3),'-r')
+    pause(1)
+    im = frame2im(getframe(gcf));
+    writeVideo(v,im);
+end
+close(v)
 
 function state_dot = uni_ode(t, state , S)
     desired_state = trajectory_generator(t , S.pt , S.sol , S.timeVec ,S.timedtVec );
