@@ -1,14 +1,14 @@
-function [path , crs, Time ] = CEM( map ,path, start, goal,iter)
+function [path , crs, Time ] = CEM( map ,path, start, goal,iter,Sigma)
 sn = size(path,1) - 2  % total intermediate knots
 ng = 1;  % number of Gaussian mixture models
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %iter = 400; % total iterations
 
-S = si_init(map , start , goal , sn ,  ng , path);
+S = si_init(map , start , goal , sn ,  ng , path, Sigma);
 N = 100;  % total samples
-% take top 10%
-p =.1;    % rho-quantile
+% take top 5%
+p =.05;    % rho-quantile
 nf = round(p*N);
 S.ss = [];
 s = feval(S.f_sinit, S);
@@ -35,7 +35,7 @@ for k=1:iter
     
     for j=j0:N
         % pss :第j轮生成的sn 个随机点
-        pss(j,:) = feval(S.f_sample, s, 1, S);
+        pss(j,:) = feval(S.f_sample, s, 1, S,k);
         % xs应该是右边示意图的点 是真正路径？
         xs = feval(S.f_traj, pss(j,:), S);
         % xs 存每轮生成的随机点？for what？
@@ -119,7 +119,7 @@ end
 
 %%%%%%% problem specific %%%%%%%%%%
 
-function S = si_init(map , start , goal ,sn, ng ,path)
+function S = si_init(map , start , goal ,sn, ng ,path,Sigma)
 
 %S.sys = 'si';
 
@@ -134,7 +134,7 @@ S.f_valid = @si_valid;
 S.f_cost = @si_cost;
 S.map = map;
 S.path = path;
-
+S.Sigma = Sigma;
 % dimension
 S.n = 3;
 % sn knods
@@ -173,7 +173,7 @@ size(xs);
 for j=1:S.ng
   s.mu(j,:) = reshape(xs(:,2:end-1), S.n*S.sn, 1);
   %##############################################################################
-  s.Sigma(:,:,j) = 0.5*eye(S.n*S.sn);
+  s.Sigma(:,:,j) = S.Sigma*eye(S.n*S.sn);
 end
 
 s.PComponents = 1/S.sn*ones(S.ng,1);
@@ -192,7 +192,7 @@ xs = [ S.xi , xs , S.xf];
 path =xs;
 
 % 按各个高斯分布生成随机点 对应只生成一个点
-function ps = si_sample(s, c, S)
+function ps = si_sample(s, c, S, k)
 
 ps = zeros(1, S.n*S.sn);
 while(1)
@@ -201,6 +201,9 @@ while(1)
         ind = (i-1)*S.n + (1:S.n);
         while(1)
             ps(ind) = mvnrnd(s.mu(ind), s.Sigma(ind,ind), 1);
+            if(k==1)
+                ps(ind) = mvnrnd(s.mu(ind), [0.1 0.1 0.1], 1);
+            end
             if(collision_check(S.map, ps(ind)) == 0)
                     break
             end
@@ -218,7 +221,7 @@ while(1)
     end
     flag = feval(S.f_valid, ps, S);
     if(flag == 1)
-        %fprintf("valid sample\n");
+        fprintf("valid sample\n");
     end
     
     if (c==0 || flag == 1)

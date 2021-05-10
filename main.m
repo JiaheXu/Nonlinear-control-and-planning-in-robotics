@@ -101,20 +101,6 @@ legend('AutoUpdate','off')
 %plotcube(map);
 
 
-% plot3(xs(:,1),xs(:,2),xs(:,3),'-r')
-v = VideoWriter('quadPlanner.avi');
-% v.FrameRate = 1;
-open(v);
-for i = 1:20:size(xs,1)-20
-    plot3(xs(i:i+19,1),xs(i:i+19,2),xs(i:i+19,3),'-r')
-    pause(1)
-    im = frame2im(getframe(gcf));
-    writeVideo(v,im);
-end
-close(v)
-
-
-
 
 function state_dot = uni_ode(t, state , S)
     desired_state = trajectory_generator(t , S.pt , S.sol , S.timeVec ,S.timedtVec );

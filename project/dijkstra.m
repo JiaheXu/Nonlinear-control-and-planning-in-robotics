@@ -67,8 +67,8 @@ function path = dijkstra(map, start , goal)
     
     path = [];
     length = 0;
-    fprintf("distance from start point to goal :");
-    dist(goal_idx(1), goal_idx(2), goal_idx(3) )
+    %fprintf("distance from start point to goal :");
+    %dist(goal_idx(1), goal_idx(2), goal_idx(3) )
     if ( dist(goal_idx(1), goal_idx(2), goal_idx(3) ) ) ~= inf
         % start from goal
         cur_p = goal_idx;
