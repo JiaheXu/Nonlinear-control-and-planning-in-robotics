@@ -98,22 +98,26 @@ plot3(xs(:,1),xs(:,2),xs(:,3),'-r')
 legend('dijkstra trajectory' ,'desired trajectory', 'executed trajectory')
 hold on
 legend('AutoUpdate','off')
-%plotcube(map);
+plotcube(map);
 
 
-% plot3(xs(:,1),xs(:,2),xs(:,3),'-r')
-v = VideoWriter('quadPlanner.avi');
-% v.FrameRate = 1;
-open(v);
-for i = 1:20:size(xs,1)-20
-    plot3(xs(i:i+19,1),xs(i:i+19,2),xs(i:i+19,3),'-r')
-    pause(1)
-    im = frame2im(getframe(gcf));
-    writeVideo(v,im);
+%% trajectory animation 
+make_video = 0;
+if make_video==1
+    v = VideoWriter('quadPlanner.avi');
+    figure(3)
+    hold on
+    % v.FrameRate = 1;
+    open(v);
+    for i = 1:20:size(xs,1)-20
+        p = plot3(xs(i:i+19,1),xs(i:i+19,2),xs(i:i+19,3),'-r')
+        p.LineWidth = 3;
+        pause(0.5)
+        im = frame2im(getframe(gcf));
+        writeVideo(v,im);
+    end
+    close(v)
 end
-close(v)
-
-
 
 
 function state_dot = uni_ode(t, state , S)
