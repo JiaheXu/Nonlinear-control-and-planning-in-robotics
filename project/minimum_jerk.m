@@ -1,13 +1,4 @@
 function [solution ,timeVec, timedtVec ] = minimum_jerk(path)
-% path = [ 0 0 0;
-%        0.5 0.5 0.5;
-%        0.5 2.5 0.5;
-% %        3.5 2.5 0.5;
-% %        3.5 3.5 0.5;
-% %        6.5 3.5 0.5;
-% %        6.5 5.5 0.5;
-% %        7 6 1;
-%     ];
 
 % input----
 % t: current time 
@@ -43,7 +34,6 @@ A(1:3, 1:6) =  [0, 0, 0, 0, 0, 1;
 b(1,:) = path(1, :);
 % % end boundary
 dt = timedtVec(end);
-%A(end-2:end, end-5:end)
 A(end-2:end, end-5:end) = [dt^5,    dt^4,   dt^3,   dt^2,  dt, 1;
                            5*dt^4,  4*dt^3, 3*dt^2, 2*dt,  1,  0;
                            20*dt^3, 12*dt^2,6*dt,   2,     0,  0];

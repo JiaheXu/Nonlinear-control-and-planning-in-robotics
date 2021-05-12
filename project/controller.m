@@ -45,28 +45,6 @@ yaw_T = desired_state.yaw;
 yaw_dt_T = desired_state.yawdot;
 
 %desired acceleration 
-% fprintf('x_ddt_T\n')
-% size(x_ddt_T)
-% 
-% fprintf('x_dt - x_dt_T\n')
-% size(x_dt - x_dt_T)
-% 
-% fprintf('x -----\n')
-% size(x)
-% 
-% fprintf('x_T------\n')
-% size(x_T)
-% 
-% fprintf('x - x_T\n')
-% size( x - x_T )
-% 
-% fprintf('Kd*(x_dt - x_dt_T)\n')
-% size( Kd*(x_dt - x_dt_T) )
-
-
-% 
-% fprintf('Kp*(x - x_T)\n')
-% size(Kp*(x - x_T))
 x_ddt_des = x_ddt_T - Kd*(x_dt - x_dt_T) - Kp*(x - x_T);
 % fprintf('%d   %d   %d   %d   %d   %d \n',size(x_ddt_T,1),size(x_ddt_T,2),size(x_dt,1),size(x_dt,2),size(x_dt_T,1),size(x_dt_T,2));
 

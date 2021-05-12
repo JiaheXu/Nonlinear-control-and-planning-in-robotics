@@ -1,7 +1,6 @@
 % Ray Zhang
 classdef crazyflie < handle
-    %UNTITLED4 Summary of this class goes here
-    %   Detailed explanation goes here
+ 
     
     properties (SetAccess = immutable)
         mass = 0.030;  % weight (in kg) with 5 vicon markers (each is about 0.25g)
